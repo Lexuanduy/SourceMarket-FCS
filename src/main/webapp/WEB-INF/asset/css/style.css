@@ -1,0 +1,19 @@
+.header {
+	width: 100%;
+	float: left;
+	margin: 0 auto;
+}
+
+.logo-header {
+	width: 100%;
+	float: left;
+	margin: 0 auto;
+}
+
+.right-header {
+	width: 100%;
+	float: left;
+	margin: 0 auto;
+	style ="position: relative;
+	top: 5px;
+}
