@@ -8,8 +8,7 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 <title>Insert title here</title>
 <link rel="stylesheet"
 	href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
@@ -23,7 +22,8 @@
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
 	// Initialize Firebase
 	// TODO: Replace with your project's customized code snippet
@@ -41,6 +41,7 @@
     /**
      * Handles the sign in button press.
      */
+     var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
     function toggleSignIn() {
       if (firebase.auth().currentUser) {
         // [START signout]
@@ -49,29 +50,40 @@
       } else {
         var email = document.getElementById('email').value;
         var password = document.getElementById('password').value;
-        if (email.length < 4) {
+       if (email.length < 6) {
           alert('Please enter an email address.');
           return;
         }
-        if (password.length < 4) {
+       if (reg.test(email) == false) 
+       {
+           alert('Invalid Email Address');
+           return;
+       }
+        if (password.length < 6) {
           alert('Please enter a password.');
           return;
         }
+
         // Sign in with email and pass.
         // [START authwithemail]
-        firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        firebase.auth().signInWithEmailAndPassword(email, password).then(function(){
+
+            alert("Sigin success!");
+        }).catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code;
           var errorMessage = error.message;
           // [START_EXCLUDE]
           if (errorCode === 'auth/wrong-password') {
             alert('Wrong password.');
+            return;
           } else {
             alert(errorMessage);
+            return;
           }
           console.log(error);
           document.getElementById('quickstart-sign-in').disabled = false;
-          alert("Sigin success!");
+
           // [END_EXCLUDE]
         });
         // [END authwithemail]
@@ -85,33 +97,47 @@
     function handleSignUp() {
       var email = document.getElementById('email').value;
       var password = document.getElementById('password').value;
-      if (email.length < 4) {
+      if (email.length < 6) {
         alert('Please enter an email address.');
         return;
       }
-      if (password.length < 4) {
+      if (reg.test(email) == false) 
+      {
+          alert('Invalid Email Address');
+          return;
+      }
+      if (password.length < 6) {
         alert('Please enter a password.');
         return;
       }
+
       // Sign in with email and pass.
       // [START createwithemail]
-      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // [START_EXCLUDE]
-        if (errorCode == 'auth/weak-password') {
-          alert('The password is too weak.');
-        } else {
-          alert(errorMessage);
-        }
-        console.log(error);
-        alert("Sign Up success!");
-        // [END_EXCLUDE]
-      });
-      // [END createwithemail]
       
+    	  firebase.auth().createUserWithEmailAndPassword(email, password).then(function(){
+
+    	      alert("Sign Up success!");
+    	  }).catch(function(error) {
+    	        // Handle Errors here.
+    	        var errorCode = error.code;
+    	        var errorMessage = error.message;
+    	        // [START_EXCLUDE]
+    	        if (errorCode == 'auth/weak-password') {
+    	          alert('The password is too weak.');
+    	        } else {
+    	          alert(errorMessage);
+    	        }
+    	        console.log(error);
+
+    	        alert("Sign Up false!");
+    	        // [END_EXCLUDE]
+    	      }
+    	      );
+      
+      
+      // [END createwithemail]
     }
+    
     /**
      * Sends an email verification to the user.
      */
@@ -159,7 +185,7 @@
       // [START authstatelistener]
       firebase.auth().onAuthStateChanged(function(user) {
         // [START_EXCLUDE silent]
-        /* document.getElementById('quickstart-verify-email').disabled = true; */
+        document.getElementById('quickstart-verify-email').disabled = true;
         // [END_EXCLUDE]
         if (user) {
           // User is signed in.
@@ -171,30 +197,30 @@
           var uid = user.uid;
           var providerData = user.providerData;
           // [START_EXCLUDE]
-          /* document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
+/*           document.getElementById('quickstart-sign-in-status').textContent = 'Signed in'; */
           document.getElementById('quickstart-sign-in').textContent = 'Sign out';
-          document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  '); */
-          /* if (!emailVerified) {
+/*           document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  '); */
+          if (!emailVerified) {
             document.getElementById('quickstart-verify-email').disabled = false;
           }
           // [END_EXCLUDE]
         } else {
           // User is signed out.
           // [START_EXCLUDE]
-          document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
+/*           document.getElementById('quickstart-sign-in-status').textContent = 'Signed out'; */
           document.getElementById('quickstart-sign-in').textContent = 'Sign in';
-          document.getElementById('quickstart-account-details').textContent = 'null'; */
+/*           document.getElementById('quickstart-account-details').textContent = 'null'; */
           // [END_EXCLUDE]
         }
         // [START_EXCLUDE silent]
-        /* document.getElementById('quickstart-sign-in').disabled = false; */
+        document.getElementById('quickstart-sign-in').disabled = false;
         // [END_EXCLUDE]
       });
       // [END authstatelistener]
       document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
       document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
-      /* document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
-      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false); */
+      document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
     }
     window.onload = function() {
       initApp();
@@ -318,7 +344,7 @@ to {
 	background-color: #5cb85c;
 	color: white;
 	padding: 0 5px 0 5px;
-	display:none;
+	display: none;
 }
 
 .signIn {
@@ -327,7 +353,25 @@ to {
 	background-color: #5cb85c;
 	color: white;
 	padding: 0 5px 0 5px;
-	display:none;
+	display: none;
+}
+
+.verify {
+	width: 100%;
+	height: 40px;
+	background-color: #5cb85c;
+	color: white;
+	padding: 0 5px 0 5px;
+	display: none;
+}
+
+.reset {
+	width: 100%;
+	height: 40px;
+	background-color: #5cb85c;
+	color: white;
+	padding: 0 5px 0 5px;
+	display: none;
 }
 
 .sign-in {
@@ -339,38 +383,6 @@ to {
 </style>
 </head>
 <body>
-	<!-- <div
-		class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
-
-		<input class="mdl-textfield__input"
-			style="display: inline; width: auto;" type="text" id="email"
-			name="email" placeholder="Email" /> &nbsp;&nbsp;&nbsp; <input
-			class="mdl-textfield__input" style="display: inline; width: auto;"
-			type="password" id="password" name="password" placeholder="Password" />
-		<br /> <br />
-		<button disabled class="mdl-button mdl-js-button mdl-button--raised"
-			id="quickstart-sign-in" name="signin">Sign In</button>
-		&nbsp;&nbsp;&nbsp;
-		<button class="mdl-button mdl-js-button mdl-button--raised"
-			id="quickstart-sign-up" name="signup">Sign Up</button>
-		&nbsp;&nbsp;&nbsp;
-		<button class="mdl-button mdl-js-button mdl-button--raised" disabled
-			id="quickstart-verify-email" name="verify-email">Send Email
-			Verification</button>
-		&nbsp;&nbsp;&nbsp;
-		<button class="mdl-button mdl-js-button mdl-button--raised"
-			id="quickstart-password-reset" name="verify-email">Send
-			Password Reset Email</button>
-
-		Container where we'll display the user details
-		<div class="quickstart-user-details-container">
-			Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
-			<pre>
-							<code id="quickstart-account-details">null</code>
-						</pre>
-		</div>
-	</div> -->
-
 	<!-- modal -->
 	<!-- Trigger/Open The Modal -->
 	<button id="btnSigup">Sign Up</button>
@@ -399,7 +411,7 @@ to {
 						<i class="fas fa-key"></i> <label for="password"><b>Password</b></label>
 					</div>
 					<div class="col-sm-9">
-						<input type="text" placeholder="Enter Password" id="password"
+						<input type="password" placeholder="Enter Password" id="password"
 							name="password" required>
 					</div>
 				</div>
@@ -409,6 +421,10 @@ to {
 					Up</button>
 				<button class="signIn" id="quickstart-sign-in" name="signin">Sign
 					In</button>
+				<button class="verify" id="quickstart-verify-email"
+					name="verify-email">Send Email Verification</button>
+				<button class="reset" id="quickstart-password-reset"
+					name="verify-email">Send Password Reset Email</button>
 			</div>
 		</div>
 
@@ -433,26 +449,34 @@ btnsignUp.onclick = function() {
     document.getElementById("text_sig").innerHTML = res;
         $(".signIn").hide();
         $(".signUp").show();
-        
+        $(".verify").show();
+        $(".reset").hide();
 }
 
 btnsignIn.onclick = function() {
     modal.style.display = "block";
+    document.getElementById('quickstart-sign-in').textContent = 'Sign in';
     var str = document.getElementById("text_sig").innerHTML; 
     var res = str.replace("SIGN UP", "SIGN IN");
     document.getElementById("text_sig").innerHTML = res;
     $(".signUp").hide();
     $(".signIn").show();
+    $(".verify").hide();
+    $(".reset").show();
 }
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
     modal.style.display = "none";
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
 }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
     if (event.target == modal) {
         modal.style.display = "none";
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
     }
 }
 </script>
