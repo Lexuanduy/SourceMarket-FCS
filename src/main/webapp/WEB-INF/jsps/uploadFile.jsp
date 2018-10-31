@@ -13,8 +13,10 @@
 	integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz"
 	crossorigin="anonymous">
 <script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<title>Insert title here</title>
+<title>Upload source code</title>
 </head>
 <body>
 	<div class="container">
@@ -60,10 +62,9 @@
 							style="border-radius: 10px !important;">
 							<option value="" disabled="" selected="">Select kind of
 								source code</option>
-							<option value="8">Game</option>
-							<option value="7">Theme</option>
-							<option value="6">App mobile</option>
-							<option value="4">Website</option>
+							<option value="1">App mobile</option>
+							<option value="2">Game</option>
+							<option value="3">Website</option>
 						</select>
 					</div>
 					<div class="col-sm-6" style="border-radius: 10px !important;">
@@ -72,10 +73,9 @@
 							style="border-radius: 10px !important;">
 							<option value="" disabled="" selected="">Select category
 								of source code</option>
-							<option value="8">Game</option>
-							<option value="7">Theme</option>
-							<option value="6">App mobile</option>
-							<option value="4">Website</option>
+							<option value="1">Java</option>
+							<option value="2">Javascript</option>
+							<option value="3">C#</option>
 						</select>
 					</div>
 				</div>
@@ -145,7 +145,7 @@
 									<span class="btn btn-default btn-file border-input"> <span
 										class="fileupload-new" style="float: left;"><i
 											class="fa fa-file-code-o w3-xlarge"></i> Click choose file</span> <input
-										type="file" name="" id="fileSourceCode" accept=".zip, .rar"><span
+										type="file" name="file" id="file" accept=".zip, .rar"><span
 										id="error-file-source-code"
 										style="color: #F00; font-weight: bold"></span>
 									</span>
@@ -172,7 +172,7 @@
 							.jpg, .png (<span style="color: #F00;">Obligatory and size
 								&lt; 2M</span>)
 					</strong></label>
-					<div class="w3-container" id="img-avatar-container"></div>
+					<div class="w3-container" id="img-avatar"></div>
 					<input type="file" name="fileAvatar" id="fileAvatar"
 						accept=".jpeg, .jpg, .png">
 				</div>
@@ -182,16 +182,17 @@
 							format .jpeg, .jpg, .png (<span style="color: #F00;">Required
 								at least 1 image, up to 15 images and size &lt; 2M</span>)
 					</strong></label>
-					<div class="w3-container" id="img-container"></div>
+					<div class="w3-container" id="img-description"></div>
 					<input type="file" name="fileImage[]" id="fileImage"
 						accept=".jpeg, .jpg, .png" multiple="multiple">
 				</div>
 				<div class="w3-panel w3-border-bottom w3-border-green"></div>
 				<p style="text-align: center;">
-					<a id="btn-upload-source-code" class="w3-button w3-green w3-round"><i
+					<a id="uploadFile" class="w3-button w3-green w3-round"><i
 						class="fas fa-cloud-upload-alt w3-xlarge"> UPLOAD</i></a>
 				</p>
-<!-- 			</form> -->
+				<!-- <input type="submit" id="submitButton"  name="submitButton" value="Submit">
+			</form> -->
 		</div>
 	</div>
 	<style>
@@ -224,19 +225,32 @@
 	}
 	
 	//upload
-	$("#btn-upload-source-code").click(function(){
-		blob = $("#fileSourceCode")[0].files[0];
+	$("#uploadFile").click(function() {
+		blob = $("#file")[0].files[0];
+		avatarBlob = $("#fileAvatar")[0].files[0];
+		imgDescriptionBlob = $("#fileImage")[0].files[0];
 		var formData = new FormData();
 		formData.append('file', blob);
+		formData.append('avatar', avatarBlob);
+		formData.append('imgDescription', imgDescriptionBlob);
+		
+		formData.append('name', $("#name-sourceCode").val());
+		/* formData.append('kindId', $("#kind_id").val());
+		formData.append('categoryId', $("#category_id").val()); */
+		formData.append('description', $("#description").val());
+		formData.append('point', $("#point").val());
+		formData.append('linkDemo', $("#link-demo").val());
+		formData.append('linkSource', $("#link-sourceCode").val());
 		console.log("click submit");
 		$.ajax({
-			url: "/uploadFile",
-			type: 'POST',
-			data: formData,
-			contentType: false,
-			processData: false,
-			success: function(data){
+			url : "/uploadFile",
+			type : 'POST',
+			data : formData,
+			contentType : false,
+			processData : false,
+			success : function(data) {
 				console.log(data);
+				alert("success");
 			}
 		});
 	});

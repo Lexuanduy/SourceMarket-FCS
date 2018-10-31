@@ -9,7 +9,7 @@
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-<title>Insert title here</title>
+<title>Sign up</title>
 <link rel="stylesheet"
 	href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
 <link rel="stylesheet"
