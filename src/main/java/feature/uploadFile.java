@@ -37,8 +37,8 @@ import entities.Kind;
  */
 @WebServlet("/uploadFile")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-maxFileSize = 1024 * 1024 * 10, // 10MB
-maxRequestSize = 1024 * 1024 * 50) // 50MB
+		maxFileSize = 1024 * 1024 * 10, // 10MB
+		maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class uploadFile extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	static {
@@ -49,154 +49,130 @@ public class uploadFile extends HttpServlet {
 
 	GcsService gcsService = GcsServiceFactory.createGcsService();
 	static Logger log = Logger.getLogger(uploadFile.class.getName());
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public uploadFile() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public uploadFile() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		/*response.getWriter().append("Served at: ").append(request.getContextPath());*/
+		/*
+		 * response.getWriter().append("Served at: ").append(request.getContextPath());
+		 */
 		RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("/WEB-INF/jsps/uploadFile.jsp");
 		dispatcher.forward(request, response);
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		log.warning("upload sound");
 		Enumeration<String> paramNames = request.getParameterNames();
 		while (paramNames.hasMoreElements()) {
 			String paramName = (String) paramNames.nextElement();
-			log.warning(paramName);
 			String param = request.getParameter(paramName);
 			log.warning(param);
 		}
+
 		long now = 0;
 		String file = null;
 		String avatar = null;
 		String imgDescription = null;
-		List<Part> fileParts = request.getParts().stream().filter(part -> "file".equals(part.getName()))
-				.collect(Collectors.toList()); // Retrieves <input type="file" name="file" multiple="true">
-		for (Part filePart : fileParts) {
-			try {
-				log.warning("co file moi");
-				String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-				InputStream fileContent = filePart.getInputStream();
 
-				byte[] buffer = new byte[fileContent.available()];
-				fileContent.read(buffer);
+		Part fileSource = request.getPart("file");
+		Part avatarPart = request.getPart("avatar");
+		Part imgPart = request.getPart("imgDescription");
+		log.warning("" + imgPart);
+		try {
+			log.warning("co file moi");
+			String fileNameSource = Paths.get(fileSource.getSubmittedFileName()).getFileName().toString();
+			String fileName_Avatar = Paths.get(avatarPart.getSubmittedFileName()).getFileName().toString();
+			String fileName_Img = Paths.get(imgPart.getSubmittedFileName()).getFileName().toString();
 
-				GcsOutputChannel outputChannel;
-				now = System.currentTimeMillis();
-				now = now / 1000;
-				file = Long.toString(now, Character.MAX_RADIX);
-				GcsFilename fileName2 = new GcsFilename("sourcemarket-220904.appspot.com","file/" + file + ".rar");
-				log.warning(fileName2.getBucketName());
-				GcsFileMetadata metadata = gcsService.getMetadata(fileName2);
+			InputStream fileContentFile = fileSource.getInputStream();
+			InputStream fileContentAvatar = avatarPart.getInputStream();
+			InputStream fileContentImg = imgPart.getInputStream();
 
-				byte[] audioByte = buffer;
-				ByteBuffer buf = ByteBuffer.wrap(audioByte);
-				GcsFileOptions options = new GcsFileOptions.Builder().acl("public-read").build();
-				outputChannel = gcsService.createOrReplace(fileName2, options);
+			byte[] bufferFile = new byte[fileContentFile.available()];
+			byte[] bufferAvatar = new byte[fileContentAvatar.available()];
+			byte[] bufferImg = new byte[fileContentImg.available()];
 
-				outputChannel.write(buf);
-				
-				log.warning("save file success");
-				log.warning("close");
-				outputChannel.close();
+			fileContentFile.read(bufferFile);
+			fileContentAvatar.read(bufferAvatar);
+			fileContentImg.read(bufferImg);
 
-			} catch (Exception e) {
-				// TODO: handle exception
-				e.printStackTrace();
-			}
-			response.getWriter().println(file);
+			GcsOutputChannel outputChannelFile;
+			GcsOutputChannel outputChannelAvatar;
+			GcsOutputChannel outputChannelImg;
+
+			now = System.currentTimeMillis();
+			now = now / 1000;
+			file = Long.toString(now, Character.MAX_RADIX);
+			now = now * 1000;
+			avatar = Long.toString(now, Character.MAX_RADIX);
+			now = now / 100;
+			imgDescription = Long.toString(now, Character.MAX_RADIX);
+
+			GcsFilename fileNameFile = new GcsFilename("sourcemarket-220904.appspot.com", "file/" + file + ".rar");
+			GcsFilename fileNameAvatar = new GcsFilename("sourcemarket-220904.appspot.com", "avatar/" + avatar + ".png");
+			GcsFilename fileNameImg = new GcsFilename("sourcemarket-220904.appspot.com", "imgDescription/" + imgDescription + ".png");
+			log.warning("" + fileNameImg.getBucketName());
+			
+
+			byte[] FileByte = bufferFile;
+			byte[] AvatarByte = bufferAvatar;
+			byte[] ImgByte = bufferImg;
+
+			ByteBuffer bufFile = ByteBuffer.wrap(FileByte);
+			ByteBuffer bufAvatar = ByteBuffer.wrap(AvatarByte);
+			ByteBuffer bufImg = ByteBuffer.wrap(ImgByte);
+
+			GcsFileOptions options = new GcsFileOptions.Builder().acl("public-read").build();
+
+			outputChannelFile = gcsService.createOrReplace(fileNameFile, options);
+			outputChannelAvatar = gcsService.createOrReplace(fileNameAvatar, options);
+			outputChannelImg = gcsService.createOrReplace(fileNameImg, options);
+
+			outputChannelFile.write(bufFile);
+			outputChannelAvatar.write(bufAvatar);
+			outputChannelImg.write(bufImg);
+
+			String nameFile = request.getParameter("name");
+			String kindId = request.getParameter("kindId");
+			String categoryId = request.getParameter("categoryId");
+			String descriptionFile = request.getParameter("description");
+			String pointFile = request.getParameter("point");
+			String linkDemoFile = request.getParameter("linkDemo");
+			String linkFile = request.getParameter("linkSource");
+			File fileSourceCode = new File(file, nameFile, kindId, categoryId, descriptionFile, pointFile, linkDemoFile,
+					linkFile, avatar, imgDescription);
+			ofy().save().entity(fileSourceCode).now();
+			
+			outputChannelFile.close();
+			outputChannelAvatar.close();
+			outputChannelImg.close();
+			log.warning("close");
+		} catch (Exception e) {
+			// TODO: handle exception
+			log.warning("error");
+			e.printStackTrace();
 		}
-
-		List<Part> fileAvatar = request.getParts().stream().filter(part -> "avatar".equals(part.getName()))
-				.collect(Collectors.toList());
-		for (Part filePart : fileAvatar) {
-			try {
-				log.warning("co file moi");
-				String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-				InputStream fileContent = filePart.getInputStream();
-
-				byte[] buffer = new byte[fileContent.available()];
-				fileContent.read(buffer);
-
-				GcsOutputChannel outputChannel;
-				now = System.currentTimeMillis();
-				now = now / 100;
-				avatar = Long.toString(now, Character.MAX_RADIX);
-				GcsFilename fileName2 = new GcsFilename("sourcemarket-220904.appspot.com","avatar/" + avatar + ".png");
-				log.warning(fileName2.getBucketName());
-				GcsFileMetadata metadata = gcsService.getMetadata(fileName2);
-
-				byte[] audioByte = buffer;
-				ByteBuffer buf = ByteBuffer.wrap(audioByte);
-				GcsFileOptions options = new GcsFileOptions.Builder().acl("public-read").build();
-				outputChannel = gcsService.createOrReplace(fileName2, options);
-
-				outputChannel.write(buf);
-				log.warning("save file avatar success");
-				log.warning("close");
-				outputChannel.close();
-
-			} catch (Exception e) {
-				// TODO: handle exception
-				e.printStackTrace();
-			}
-			response.getWriter().println(avatar);
-		}
-
-		List<Part> fileImgDescription = request.getParts().stream().filter(part -> "imgDescription".equals(part.getName()))
-				.collect(Collectors.toList());
-		for (Part filePart : fileImgDescription) {
-			try {
-				log.warning("co file moi");
-				String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-				InputStream fileContent = filePart.getInputStream();
-
-				byte[] buffer = new byte[fileContent.available()];
-				fileContent.read(buffer);
-
-				GcsOutputChannel outputChannel;
-				now = System.currentTimeMillis();
-				imgDescription = Long.toString(now, Character.MAX_RADIX);
-				GcsFilename fileName2 = new GcsFilename("sourcemarket-220904.appspot.com","imgDescription/" + imgDescription + ".png");
-				log.warning(fileName2.getBucketName());
-				GcsFileMetadata metadata = gcsService.getMetadata(fileName2);
-
-				byte[] audioByte = buffer;
-				ByteBuffer buf = ByteBuffer.wrap(audioByte);
-				GcsFileOptions options = new GcsFileOptions.Builder().acl("public-read").build();
-				outputChannel = gcsService.createOrReplace(fileName2, options);
-
-				outputChannel.write(buf);
-				String nameFile = request.getParameter("name");
-				String descriptionFile = request.getParameter("description");
-				String pointFile = request.getParameter("point");
-				String linkDemoFile = request.getParameter("linkDemo");
-				String linkFile = request.getParameter("linkSource");
-				File fileSource = new File("f003" ,nameFile,"K001","C002",descriptionFile, pointFile, linkDemoFile, linkFile, "link avatar", "link img");
-				ofy().save().entity(fileSource).now();
-				outputChannel.close();
-
-			} catch (Exception e) {
-				// TODO: handle exception
-				e.printStackTrace();
-			}
-			response.getWriter().println(imgDescription);
-			return;
-		}
+		response.getWriter().println(file);
+		response.getWriter().println(avatar);
+		response.getWriter().println(imgDescription);
+		log.warning("save file success return response!!!");
 	}
 
 }
